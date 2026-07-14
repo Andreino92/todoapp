@@ -1,0 +1,59 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: todo_sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+    # OJO: solo publicamos este puerto para que puedas conectarte desde
+    # herramientas como Azure Data Studio / DBeaver a la base que corre
+    # en tu propia PC. Si no lo necesitas, podes borrar este bloque "ports"
+    # y la base seguira funcionando igual dentro de la red interna de Docker.
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - todo_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${DB_PASSWORD}\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: todo_backend
+    environment:
+      - DB_HOST=sqlserver
+      - DB_NAME=tododb
+      - DB_USER=sa
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - todo_net
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: todo_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - todo_net
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+
+networks:
+  todo_net:
+    driver: bridge

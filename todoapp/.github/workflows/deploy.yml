@@ -1,0 +1,23 @@
+name: Deploy local con Docker
+
+# Este pipeline corre en un "self-hosted runner" instalado en tu propia
+# PC (ver README, seccion "Configurar el runner de GitHub Actions").
+# Cada vez que haces push a main, GitHub le avisa a ese runner (que esta
+# escuchando en tu maquina) y este reconstruye y reinicia los contenedores
+# automaticamente. No hace falta VPS ni SSH: tu PC actua como "servidor".
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout del codigo actualizado
+        uses: actions/checkout@v4
+
+      - name: Reconstruir y reiniciar contenedores
+        run: |
+          docker compose up -d --build
+          docker image prune -f

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Lista de Tareas</h1>
+
+    <form id="task-form" class="task-form">
+      <input type="text" id="title" placeholder="Título de la tarea" required maxlength="200">
+      <input type="text" id="description" placeholder="Descripción (opcional)" maxlength="1000">
+      <button type="submit">Agregar</button>
+    </form>
+
+    <div class="filter-box">
+      <input type="text" id="filter" placeholder="🔍 Filtrar tareas en tiempo real...">
+    </div>
+
+    <ul id="task-list" class="task-list"></ul>
+
+    <p id="empty-msg" class="empty-msg" style="display:none;">No hay tareas para mostrar.</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

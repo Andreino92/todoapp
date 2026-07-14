@@ -1,0 +1,6 @@
+.env
+backend/target/
+backup/files/
+backup/backup.log
+*.log
+.DS_Store
